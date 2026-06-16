@@ -1,0 +1,122 @@
+use Projectdb;
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(15),
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+CREATE TABLE child (
+    child_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+
+    child_name VARCHAR(100) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    gender ENUM('Male','Female','Other'),
+    blood_group VARCHAR(10),
+    birth_weight DECIMAL(4,2),
+    allergies TEXT,
+
+    FOREIGN KEY (user_id)
+    REFERENCES users(user_id)
+    ON DELETE CASCADE
+);
+
+
+CREATE TABLE vaccine (
+    vaccine_id INT PRIMARY KEY AUTO_INCREMENT,
+
+    vaccine_name VARCHAR(100) NOT NULL,
+
+    recommended_age VARCHAR(50),
+    dose_number INT,
+
+    description TEXT
+);
+
+
+CREATE TABLE immunization_record (
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
+
+    child_id INT NOT NULL,
+    vaccine_id INT NOT NULL,
+
+    vaccination_date DATE,
+    next_due_date DATE,
+
+    hospital_name VARCHAR(150),
+    doctor_name VARCHAR(100),
+
+    remarks TEXT,
+
+    FOREIGN KEY (child_id)
+    REFERENCES child(child_id)
+    ON DELETE CASCADE,
+
+    FOREIGN KEY (vaccine_id)
+    REFERENCES vaccine(vaccine_id)
+);
+
+
+CREATE TABLE appointment (
+    appointment_id INT PRIMARY KEY AUTO_INCREMENT,
+
+    child_id INT NOT NULL,
+
+    doctor_name VARCHAR(100),
+    hospital_name VARCHAR(150),
+
+    appointment_date DATETIME NOT NULL,
+
+    purpose VARCHAR(200),
+
+    status ENUM(
+        'Scheduled',
+        'Completed',
+        'Cancelled'
+    ) DEFAULT 'Scheduled',
+
+    FOREIGN KEY (child_id)
+    REFERENCES child(child_id)
+    ON DELETE CASCADE
+);
+
+
+CREATE TABLE notification_log (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+
+    child_id INT NOT NULL,
+    vaccine_id INT,
+
+    message TEXT,
+
+    notification_type ENUM(
+        'Upcoming',
+        'Missed',
+        'Reminder'
+    ),
+
+    sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    status ENUM(
+        'Sent',
+        'Failed',
+        'Pending'
+    ) DEFAULT 'Pending',
+
+    FOREIGN KEY (child_id)
+    REFERENCES child(child_id)
+    ON DELETE CASCADE,
+
+    FOREIGN KEY (vaccine_id)
+    REFERENCES vaccine(vaccine_id)
+);
+
+
+
